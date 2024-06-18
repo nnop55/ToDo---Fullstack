@@ -15,21 +15,22 @@ export const insertUser = async (
 }
 
 export const updateUserToken = async (
-    email: string,
-    accessToken:string | null
+    column: string,
+    value: string | number,
+    accessToken: string | null
 ) => {
     const [result] = await db.query(
         `UPDATE users 
             SET access_token = ?
-        WHERE email = ?`,
-        [accessToken, email]);
+        WHERE ${column} = ?`,
+        [accessToken, value]);
 
-        return (result as any).affectedRows > 0;
+    return (result as any).affectedRows > 0;
 }
 
 export const getUserByColumn = async (
     column: string,
-    value:string
+    value: string
 ) => {
     const [rows] = await db.query(
         `SELECT * FROM users WHERE ${column} = ?`,

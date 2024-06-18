@@ -17,7 +17,7 @@ class AuthController {
         }
 
         const accessToken = getJwt({ id: user.id, email: user.email });
-        await updateUserToken(email, accessToken)
+        await updateUserToken('email', email, accessToken)
         res.status(200).json({ code: 1, data: { accessToken } });
     }
 
@@ -36,7 +36,7 @@ class AuthController {
 
     public async logout(req: Request, res: Response) {
         const { email } = (req as any).user;
-        await updateUserToken(email, null)
+        await updateUserToken('email', email, null)
         res.send({ code: 1, data: null });
     }
 }

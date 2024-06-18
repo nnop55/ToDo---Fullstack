@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { JWTSecretKey } from '../shared/config';
 import { verifyJwt } from '../utils/auth';
-import { getUserByColumn } from '../modules/auth/auth.service';
+import { getUserByColumn, updateUserToken } from '../modules/auth/auth.service';
 import UnauthorizedError from '../utils/errors/unauthorizedError';
 
 export const verifyToken = async (
@@ -15,7 +15,6 @@ export const verifyToken = async (
         return next(new UnauthorizedError())
     }
 
-
     try {
         const decoded = verifyJwt(token, JWTSecretKey!);
         const instance = await getUserByColumn('id', (decoded as any).id);
@@ -27,6 +26,7 @@ export const verifyToken = async (
 
         return next()
     } catch (err) {
+        await updateUserToken('access_token', token, null)
         next(new UnauthorizedError('Invalid Token'))
     }
 };
