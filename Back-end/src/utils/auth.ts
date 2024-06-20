@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import { JWTSecretKey } from '../shared/config';
 
 export const comparePasswords = (
     password: string,
@@ -17,9 +16,10 @@ export const hashPassword = (
 
 export const getJwt = (
     payload: any,
+    secretKey: any,
     time: string = '6h'
 ) => {
-    return jwt.sign(payload, JWTSecretKey!, { expiresIn: time });
+    return jwt.sign(payload, secretKey!, { expiresIn: time });
 }
 
 export const verifyJwt = (

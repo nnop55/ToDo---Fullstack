@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { comparePasswords, getJwt, hashPassword } from '../../utils/auth';
-import { getUserByColumn, insertUser, updateUserToken } from './auth.service';
+import { getUserByColumn, insertUser, updateUserColumn } from './auth.service';
+import { JWTRefreshTokenSecretKey, JWTSecretKey } from '../../shared/config';
 import CustomError from '../../utils/errors/customError';
 import ValidationError from '../../utils/errors/validationError';
 
@@ -16,8 +17,29 @@ class AuthController {
             throw new ValidationError('Invalid email or password')
         }
 
-        const accessToken = getJwt({ id: user.id, email: user.email });
-        await updateUserToken('email', email, accessToken)
+        const accessToken = getJwt(
+            { id: user.id, email: user.email },
+            JWTSecretKey
+        );
+        const refreshToken = getJwt(
+            { id: user.id, email: user.email },
+            JWTRefreshTokenSecretKey,
+            '7d'
+        );
+        await updateUserColumn('email', email, 'access_token', accessToken)
+        await updateUserColumn('email', email, 'refresh_token', refreshToken)
+        res.status(200).json({ code: 1, data: { accessToken, refreshToken } });
+    }
+
+    public async refreshToken(req: Request, res: Response) {
+        const { id, email } = (req as any).user;
+
+        const accessToken = getJwt(
+            { id: id, email: email },
+            JWTSecretKey
+        );
+
+        await updateUserColumn('id', id, 'access_token', accessToken)
         res.status(200).json({ code: 1, data: { accessToken } });
     }
 
@@ -35,8 +57,9 @@ class AuthController {
     }
 
     public async logout(req: Request, res: Response) {
-        const { email } = (req as any).user;
-        await updateUserToken('email', email, null)
+        const { id } = (req as any).user;
+        await updateUserColumn('id', id, 'access_token', null)
+        await updateUserColumn('id', id, 'refresh_token', null)
         res.send({ code: 1, data: null });
     }
 }

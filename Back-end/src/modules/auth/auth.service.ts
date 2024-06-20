@@ -14,16 +14,17 @@ export const insertUser = async (
     return result;
 }
 
-export const updateUserToken = async (
-    column: string,
+export const updateUserColumn = async (
+    searchColumn: string,
     value: string | number,
-    accessToken: string | null
+    column: string | null,
+    token: string | null,
 ) => {
     const [result] = await db.query(
         `UPDATE users 
-            SET access_token = ?
-        WHERE ${column} = ?`,
-        [accessToken, value]);
+            SET ${column} = ?
+        WHERE ${searchColumn} = ?`,
+        [token, value]);
 
     return (result as any).affectedRows > 0;
 }

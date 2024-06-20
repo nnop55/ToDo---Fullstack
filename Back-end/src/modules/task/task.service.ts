@@ -2,7 +2,13 @@ import { db } from "../../shared/database";
 
 export const getAllTask = async () => {
     const [result] = await db.query(
-        `SELECT * FROM tasks`);
+        `SELECT 
+            id, 
+            title,
+            description,
+            status,
+            user_id AS userId
+            FROM tasks`);
 
     return result;
 }
